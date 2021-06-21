@@ -7,6 +7,7 @@ import (
 	"go-react-mongo/internal/config"
 	"go-react-mongo/internal/handler"
 	"go-react-mongo/internal/logger"
+	"go-react-mongo/internal/mongoDB"
 	"go-react-mongo/internal/product"
 	"net/http"
 	"os"
@@ -22,9 +23,14 @@ var ctx context.Context
 
 func main() {
 
+	client, err := mongoDB.NewMongoClient(ctx)
+	if err != nil {
+		logger.Errorf(ctx, "error connecting to mongo client %v", err)
+	}
+
 	server := &http.Server{
 		Addr: ":" + viper.GetString(config.Port),
-		Handler: createRouter(),
+		Handler: createRouter(client),
 	}
 
 	go func() {
@@ -32,18 +38,18 @@ func main() {
 			panic(err)
 		}
 	}()
-	gracefulStop(server)
+	gracefulStop(server, client)
 }
 
-func createRouter() *mux.Router {
+func createRouter(client *mongoDB.Client) *mux.Router {
 	r := mux.NewRouter()
-	product.Configure(r)
+	product.Configure(r, client)
 	r.PathPrefix("/static").Handler(http.StripPrefix("/", handler.Get()))
 	r.PathPrefix("/").HandlerFunc(handler.IndexHandler(viper.GetString(config.BuildDir) + "/index.html"))
 	return r
 }
 
-func gracefulStop(server *http.Server) {
+func gracefulStop(server *http.Server, client *mongoDB.Client) {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	<-stop

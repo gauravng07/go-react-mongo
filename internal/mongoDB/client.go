@@ -12,13 +12,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-type mongoClient struct {
-	Client	*mongo.Client
+type Client struct {
+	mongoCli	*mongo.Client
 }
 
-func NewMongoClient(ctx context.Context) (*mongoClient, error) {
+func NewMongoClient(ctx context.Context) (*Client, error) {
 	client, err := createConnection(ctx)
-	return &mongoClient{Client: client}, err
+	return &Client{mongoCli: client}, err
 }
 
 func createConnection(ctx context.Context) (*mongo.Client, error)  {
