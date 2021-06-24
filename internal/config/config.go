@@ -11,6 +11,7 @@ const (
 	Password		=	"PASSWORD"
 	ClusterAddress	= 	"CLUSTER_ADDRESS"
 	DBName			= 	"DB_NAME"
+	Collection 		= 	"COLLECTION"
 )
 
 func init()  {
