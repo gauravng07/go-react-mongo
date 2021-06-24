@@ -13,12 +13,12 @@ import (
 )
 
 type Client struct {
-	mongoCli	*mongo.Client
+	MClient	*mongo.Client
 }
 
 func NewMongoClient(ctx context.Context) (*Client, error) {
 	client, err := createConnection(ctx)
-	return &Client{mongoCli: client}, err
+	return &Client{MClient: client}, err
 }
 
 func createConnection(ctx context.Context) (*mongo.Client, error)  {
