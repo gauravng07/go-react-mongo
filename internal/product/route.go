@@ -14,4 +14,5 @@ func Configure(productRouter *mux.Router, mongo *mongoDB.Client)  {
 	listingSvc := service.NewListingImpl(listingRepo)
 	r := productRouter.PathPrefix("/product").Subrouter()
 	r.HandleFunc("/get-listing", handler.ProductHandler(listingSvc)).Methods(http.MethodGet)
+	r.HandleFunc("/listing/branch/:brand", handler.ProductHandler(listingSvc)).Methods(http.MethodGet)
 }

@@ -38,5 +38,18 @@ func (l listingRepoImpl) GetAllProduct(ctx context.Context) ([]model.Listing, er
 }
 
 func (l listingRepoImpl) GetProductByBrand(ctx context.Context, brand string) ([]model.Listing, error) {
-	panic("implement me")
+	cursor, err := l.client.Database(viper.GetString(config.DBName)).
+		Collection(viper.GetString(config.Collection)).
+		Find(ctx, map[string]string{
+			"brand": brand,
+		}, nil)
+	defer cursor.Close(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("no product woth given brancd: %+v", err)
+	}
+ 	var listing []model.Listing
+	if err = cursor.All(ctx, &listing); err != nil {
+		return nil, fmt.Errorf("error getting product listing: %+v", err)
+	}
+	return listing, nil
 }
