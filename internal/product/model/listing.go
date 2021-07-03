@@ -9,13 +9,13 @@ type Listing struct {
 	ProductName				string		`bson:"product_name,omitempty"`
 	ProductCategoryTree		string		`bson:"product_category_tree,omitempty"`
 	PID						string		`bson:"pid,omitempty"`
-	RetailPrice				string		`bson:"retail_price,omitempty"`
-	DiscountedPrice			string		`bson:"discounted_price,omitempty"`
+	RetailPrice				interface{}		`bson:"retail_price,omitempty"`
+	DiscountedPrice			interface{}		`bson:"discounted_price,omitempty"`
 	Image					string		`bson:"image,omitempty"`
 	IsFKAdvanceProduct		string		`bson:"is_FK_Advantage_product,omitempty"`
 	Description				string		`bson:"description,omitempty"`
-	ProductRating			string		`bson:"product_rating,omitempty"`
-	OverallRating			string		`bson:"overall_rating,omitempty"`
+	ProductRating			interface{}	`bson:"product_rating,omitempty"`
+OverallRating				interface{}	`bson:"overall_rating,omitempty"`
 	Brand					string		`bson:"brand,omitempty"`
 	ProductSpecification 	string		`bson:"product_specifications,omitempty"`
 }

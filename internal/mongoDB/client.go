@@ -25,7 +25,7 @@ func createConnection(ctx context.Context) (*mongo.Client, error)  {
 	ctx, cancel := context.WithTimeout(ctx, internal.DefaultMongoDBTimeout)
 	defer cancel()
 
-	URI := fmt.Sprintf("mongoDB+srv://%s:%s@%s/%s?w=majority",
+	URI := fmt.Sprintf("mongodb+srv://%s:%s@%s/%s?w=majority",
 		viper.GetString(config.UserName),
 		viper.GetString(config.Password),
 		viper.GetString(config.ClusterAddress),

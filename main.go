@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gorilla/mux"
 	"github.com/spf13/viper"
+	"go-react-mongo/internal"
 	"go-react-mongo/internal/config"
 	"go-react-mongo/internal/handler"
 	"go-react-mongo/internal/logger"
@@ -21,11 +22,15 @@ const (
 
 var ctx context.Context
 
+func init()  {
+	ctx = internal.SetContextWithValue(context.Background(), internal.ContextKeyCorrelationID, defaultCorrelationId)
+}
+
 func main() {
 
 	client, err := mongoDB.NewMongoClient(ctx)
 	if err != nil {
-		logger.Errorf(ctx, "error connecting to mongo client %v", err)
+		logger.Fatalf(ctx, "error connecting to mongo client %v", err)
 	}
 
 	server := &http.Server{
@@ -37,6 +42,7 @@ func main() {
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			panic(err)
 		}
+		logger.Infof(ctx, "server started at port: %v", config.Port)
 	}()
 	gracefulStop(server, client)
 }
