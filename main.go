@@ -49,6 +49,7 @@ func main() {
 
 func createRouter(client *mongoDB.Client) *mux.Router {
 	r := mux.NewRouter()
+	r.Use(accessControlMiddleware)
 	product.Configure(r, client)
 	r.PathPrefix("/static").Handler(http.StripPrefix("/", handler.Get()))
 	r.PathPrefix("/").HandlerFunc(handler.IndexHandler(viper.GetString(config.BuildDir) + "/index.html"))
@@ -63,4 +64,16 @@ func gracefulStop(server *http.Server, client *mongoDB.Client) {
 	} else {
 		logger.Info(ctx, "server closed")
 	}
+}
+
+func accessControlMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+		if req.Method == "OPTIONS" {
+			return
+		}
+		next.ServeHTTP(w, req)
+	})
 }

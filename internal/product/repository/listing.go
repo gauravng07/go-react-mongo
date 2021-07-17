@@ -20,6 +20,7 @@ type ListingRepo interface {
 	GetAllProduct(ctx context.Context) ([]model.Listing, error)
 	GetProductByBrand(ctx context.Context, brand string)  ([]model.Listing, error)
 	GetProductByPage(ctx context.Context, pageNum int, pageSize int) ([]model.Listing, error)
+	GetProductByPageOptimise(ctx context.Context, limit int, lastId string) ([]*model.Listing, error)
 }
 
 func NewListingRepoImpl(client *mongo.Client) ListingRepo {
@@ -86,7 +87,7 @@ func (l *listingRepoImpl) GetProductByBrand(ctx context.Context, brand string) (
 			"brand": brand,
 		}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("no product woth given brancd: %+v", err)
+		return nil, fmt.Errorf("no product with given brand: %+v", err)
 	}
 	defer cursor.Close(ctx)
 
@@ -95,4 +96,55 @@ func (l *listingRepoImpl) GetProductByBrand(ctx context.Context, brand string) (
 		return nil, fmt.Errorf("error getting product listing: %+v", err)
 	}
 	return listing, nil
+}
+
+func (l *listingRepoImpl) GetProductByPageOptimise(ctx context.Context, limit int, lastId string) ([]*model.Listing, error) {
+	ctx, cancelFunc := context.WithTimeout(ctx, internal.DefaultHttpTimeout)
+	defer cancelFunc()
+
+	pageSize := int64(limit)
+	if len(lastId) == 0 {
+		cursor, err := l.client.Database(viper.GetString(config.DBName)).
+			Collection(viper.GetString(config.Collection)).
+			Find(ctx, bson.D{}, &options.FindOptions{Limit: &pageSize, Sort: "_id"})
+
+		if err != nil {
+			return nil, fmt.Errorf("error paginating product page: %+v", err)
+		}
+
+		defer func(cursor *mongo.Cursor, ctx context.Context) {
+			err := cursor.Close(ctx)
+			if err != nil {
+				return
+			}
+		}(cursor, ctx)
+
+		var listing []*model.Listing
+		if err = cursor.All(ctx, &listing); err != nil {
+			return nil, fmt.Errorf("error getting product listing: %+v", err)
+		}
+		return listing, nil
+
+	} else {
+		cursor, err := l.client.Database(viper.GetString(config.DBName)).
+			Collection(viper.GetString(config.Collection)).
+			Find(ctx, bson.M{"_id": bson.M{"$gt": lastId}}, &options.FindOptions{Limit: &pageSize})
+
+		if err != nil {
+			return nil, fmt.Errorf("error paginating product page: %+v", err)
+		}
+
+		defer func(cursor *mongo.Cursor, ctx context.Context) {
+			err := cursor.Close(ctx)
+			if err != nil {
+				return
+			}
+		}(cursor, ctx)
+
+		var listing []*model.Listing
+		if err = cursor.All(ctx, &listing); err != nil {
+			return nil, fmt.Errorf("error getting product listing: %+v", err)
+		}
+		return listing, nil
+	}
 }

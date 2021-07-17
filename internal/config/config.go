@@ -14,7 +14,7 @@ const (
 	Collection 		= 	"COLLECTION"
 )
 
-func init()  {
+func init() {
 	viper.AutomaticEnv()
 	viper.AddConfigPath(".")
 	viper.SetDefault(Port, "8080")
