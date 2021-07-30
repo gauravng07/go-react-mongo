@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"go-react-mongo/internal"
 	"go-react-mongo/internal/config"
@@ -20,7 +21,9 @@ const (
 	defaultCorrelationId = "00000000.00000000"
 )
 
-var ctx context.Context
+var (
+	ctx context.Context
+)
 
 func init()  {
 	ctx = internal.SetContextWithValue(context.Background(), internal.ContextKeyCorrelationID, defaultCorrelationId)
@@ -52,6 +55,7 @@ func createRouter(client *mongoDB.Client) *mux.Router {
 	r.Use(accessControlMiddleware)
 	product.Configure(r, client)
 	r.PathPrefix("/static").Handler(http.StripPrefix("/", handler.Get()))
+	r.Handle("/metrics", promhttp.Handler())
 	r.PathPrefix("/").HandlerFunc(handler.IndexHandler(viper.GetString(config.BuildDir) + "/index.html"))
 	return r
 }

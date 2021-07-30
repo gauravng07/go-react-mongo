@@ -39,10 +39,6 @@ func Debugf(ctx context.Context, format string, args ...interface{}) {
 	logger.WithField(CorrelationId, internal.GetContextValue(ctx, internal.ContextKeyCorrelationID)).Debug(formattedError)
 }
 
-func Warnf(ctx context.Context, format string, args ...interface{}) {
-	logger.WithField(CorrelationId, internal.GetContextValue(ctx, internal.ContextKeyCorrelationID)).Warnf(format, args...)
-}
-
 func Errorf(ctx context.Context, format string, args ...interface{}) {
 	formattedError := escapeString(format, args...)
 	logger.WithField(CorrelationId, internal.GetContextValue(ctx, internal.ContextKeyCorrelationID)).Error(formattedError)

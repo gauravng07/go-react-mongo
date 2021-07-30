@@ -7,7 +7,7 @@ import (
 
 type ContextKey string
 const DefaultHttpTimeout = 20 * time.Second
-const DefaultMongoDBTimeout = 10*time.Second
+const DefaultMongoDBTimeout = 10 * time.Second
 
 const ContextKeyCorrelationID ContextKey = "correlation-id"
 
@@ -19,10 +19,6 @@ func GetContextValue(ctx context.Context, key ContextKey) string {
 		}
 	}
 	return ""
-}
-
-func NewContextWithTimeOut(ctx context.Context, timeout time.Duration) (context.Context, context.CancelFunc) {
-	return context.WithTimeout(ctx, timeout)
 }
 
 func SetContextWithValue(ctx context.Context, key ContextKey, value string) context.Context {
