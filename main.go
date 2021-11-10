@@ -36,8 +36,6 @@ func main() {
 		logger.Fatalf(ctx, "error connecting to mongo client %v", err)
 	}
 
-
-
 	server := &http.Server{
 		Addr: ":" + viper.GetString(config.Port),
 		Handler: createRouter(client),
