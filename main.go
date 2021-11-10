@@ -42,6 +42,7 @@ func main() {
 	}
 
 	go func() {
+
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			panic(err)
 		}
